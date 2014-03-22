@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;HadoopTest&apos; to &apos;FirstHadoop-2.2&apos;" description="Rename resource &apos;HadoopTest&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/HadoopTest" name="FirstHadoop-2.2" stamp="1395509458934" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;MapReduceJobToStoreInHbase&apos; to &apos;MRJobToStoreInHbase&apos;" description="Rename resource &apos;MapReduceJobToStoreInHbase&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/MapReduceJobToStoreInHbase" name="MRJobToStoreInHbase" stamp="1395512822456" updateReferences="true"/>
+</session>

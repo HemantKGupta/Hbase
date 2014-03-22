@@ -1,0 +1,43 @@
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+
+
+public class ScanTest {
+
+	public static void main(String[] args) {
+		// The code assume a tbale created already by command:
+		// create 'firsttable', 'colf1'
+		// And also  has a row by key row1
+		
+		Configuration config = HBaseConfiguration.create();
+		Scan scan = new Scan();
+		HTable table=null;
+		ResultScanner scanner=null;
+		
+		try {
+			table = new HTable(config, "firsttable");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			scanner = table.getScanner(scan);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			for (Result scannerResult : scanner) {
+				System.out.println("Scan: " + scannerResult);
+			}
+		} finally {
+			scanner.close();
+		}
+	}
+
+}

@@ -1,0 +1,13 @@
+
+public class Test {
+
+	public static void main(String[] args) {
+		System.out.println(lpad(String.valueOf(1), 2, '0'));
+
+	}
+	
+	public static String lpad(String str, int length, char pad) {
+		return String.format("%1$#" + length + "s", str).replace(' ', pad);
+	}
+
+}

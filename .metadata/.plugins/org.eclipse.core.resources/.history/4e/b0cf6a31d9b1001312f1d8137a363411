@@ -1,0 +1,68 @@
+import java.io.IOException;
+import java.io.InterruptedIOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.MasterNotRunningException;
+import org.apache.hadoop.hbase.ZooKeeperConnectionException;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+import org.apache.hadoop.hbase.util.Bytes;
+
+
+public class TestHbase {
+
+	public static void main(String[] args) {
+		
+		 Configuration conf = HBaseConfiguration.create(); 		
+		 HBaseAdmin admin=null;
+		 HTable table = null;
+		 
+		try {
+			admin = new HBaseAdmin(conf);
+		} catch (MasterNotRunningException e) {
+			e.printStackTrace();
+		} catch (ZooKeeperConnectionException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			table = new HTable(conf, "firsttable");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+		 
+		 HTableDescriptor tabledesc = new HTableDescriptor("test");
+		 HColumnDescriptor columndesc = new HColumnDescriptor("data");
+		 tabledesc.addFamily(columndesc);
+		 
+		 try {
+			admin.createTable(tabledesc);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		    byte[] row1 = Bytes.toBytes("row1");
+			Put p1 = new Put(row1);
+			
+			byte[] databytes = Bytes.toBytes("cf1");
+			p1.add(databytes, Bytes.toBytes("qual1"), Bytes.toBytes("valu1"));
+			
+			try {
+				table.put(p1);
+			} catch (RetriesExhaustedWithDetailsException e) {
+				e.printStackTrace();
+			} catch (InterruptedIOException e) {
+				e.printStackTrace();
+			}
+		    
+
+	}
+
+}

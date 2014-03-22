@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;ImportFromFile.java&apos; to &apos;Ch07-Hbase-96/src&apos;&#x0A;- Original project: &apos;hbase-book-ch07&apos;&#x0A;- Destination element: &apos;Ch07-Hbase-96/src&apos;&#x0A;- Original element: &apos;mapreduce.ImportFromFile.java&apos;" description="Copy compilation unit" destination="=Ch07-Hbase-96/src" element1="/src\/main\/java&lt;mapreduce{ImportFromFile.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1395507718412" units="1" version="1.0"/>
+</session>

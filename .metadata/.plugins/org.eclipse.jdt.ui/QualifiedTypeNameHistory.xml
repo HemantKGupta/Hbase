@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="org.apache.hadoop.hbase.client.Result"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.hbase.client.Put"/>
+<fullyQualifiedTypeName name="java.sql.Statement"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.conf.Configuration"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.hbase.util.Bytes"/>
+<fullyQualifiedTypeName name="java.sql.Connection"/>
+</qualifiedTypeNameHistroy>
