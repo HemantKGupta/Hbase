@@ -20,7 +20,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 public class ImportFromFile {
   private static final Log LOG = LogFactory.getLog(ImportFromFile.class);
 
-  public static final String NAME = "ImportFromFile"; // co ImportFromFile-1-Name Define a job name for later use.
+  public static final String NAME = "ImportFromFile"; 
   public enum Counters { LINES }
 
   /**
@@ -28,8 +28,7 @@ public class ImportFromFile {
    * and outputs <code>Put</code> instances.
    */
   static class ImportMapper
-  extends Mapper<LongWritable, Text, ImmutableBytesWritable, Put> { // co ImportFromFile-2-Mapper Define the mapper class, extending the provided Hadoop class.
-
+  extends Mapper<LongWritable, Text, ImmutableBytesWritable, Put> { 
     private byte[] family = null;
     private byte[] qualifier = null;
 
@@ -60,13 +59,13 @@ public class ImportFromFile {
      * @throws IOException When mapping the input fails.
      */
     @Override
-    public void map(LongWritable offset, Text line, Context context) // co ImportFromFile-3-Map The map() function transforms the key/value provided by the InputFormat to what is needed by the OutputFormat.
+    public void map(LongWritable offset, Text line, Context context)
     throws IOException {
       try {
         String lineString = line.toString();
-        byte[] rowkey = DigestUtils.md5(lineString); // co ImportFromFile-4-RowKey The row key is the MD5 hash of the line to generate a random key.
+        byte[] rowkey = DigestUtils.md5(lineString); //The row key is the MD5 hash of the line to generate a random key.
         Put put = new Put(rowkey);
-        put.add(family, qualifier, Bytes.toBytes(lineString)); // co ImportFromFile-5-Put Store the original data in a column in the given table.
+        put.add(family, qualifier, Bytes.toBytes(lineString)); 
         context.write(new ImmutableBytesWritable(rowkey), put);
         context.getCounter(Counters.LINES).increment(1);
       } catch (Exception e) {
@@ -85,23 +84,20 @@ public class ImportFromFile {
   public static void main(String[] args) throws Exception {
     Configuration conf = HBaseConfiguration.create();
     conf.set("conf.debug", "true");
-    //String table = cmd.getOptionValue("t");
     String table = "testtable";
-    //String input = cmd.getOptionValue("i");
     //String input = "/test-data.txt";
     String input = "hdfs://localhost:9000/test-data.txt";
-    //String column = cmd.getOptionValue("c");
     String column = "data:json";
     conf.set("conf.column", column);
 
-    Job job = new Job(conf, "Import from file " + input + " into table " + table); // co ImportFromFile-8-JobDef Define the job with the required classes.
+    Job job = new Job(conf, "Import from file " + input + " into table " + table);
     job.setJarByClass(ImportFromFile.class);
     job.setMapperClass(ImportMapper.class);
     job.setOutputFormatClass(TableOutputFormat.class);
     job.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE, table);
     job.setOutputKeyClass(ImmutableBytesWritable.class);
     job.setOutputValueClass(Writable.class);
-    job.setNumReduceTasks(0); // co ImportFromFile-9-MapOnly This is a map only job, therefore tell the framework to bypass the reduce step.
+    job.setNumReduceTasks(0); //This is a map only job, therefore tell the framework to bypass the reduce step.
     FileInputFormat.addInputPath(job, new Path(input));
 
     System.exit(job.waitForCompletion(true) ? 0 : 1);

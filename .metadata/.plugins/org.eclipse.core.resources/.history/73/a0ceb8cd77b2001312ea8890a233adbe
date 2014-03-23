@@ -1,0 +1,105 @@
+import java.io.IOException;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+
+public class ImportFromFile {
+  private static final Log LOG = LogFactory.getLog(ImportFromFile.class);
+
+  public static final String NAME = "ImportFromFile"; 
+  public enum Counters { LINES }
+
+  /**
+   * Implements the <code>Mapper</code> that takes the lines from the input
+   * and outputs <code>Put</code> instances.
+   */
+  static class ImportMapper
+  extends Mapper<LongWritable, Text, ImmutableBytesWritable, Put> { 
+    private byte[] family = null;
+    private byte[] qualifier = null;
+
+    /**
+     * Prepares the column family and qualifier.
+     *
+     * @param context The task context.
+     * @throws IOException When an operation fails - not possible here.
+     * @throws InterruptedException When the task is aborted.
+     */
+    @Override
+    protected void setup(Context context)
+      throws IOException, InterruptedException {
+      String column = context.getConfiguration().get("conf.column");
+      byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(column));
+      family = colkey[0];
+      if (colkey.length > 1) {
+        qualifier = colkey[1];
+      }
+    }
+
+    /**
+     * Maps the input.
+     *
+     * @param offset The current offset into the input file.
+     * @param line The current line of the file.
+     * @param context The task context.
+     * @throws IOException When mapping the input fails.
+     */
+    @Override
+    public void map(LongWritable offset, Text line, Context context)
+    throws IOException {
+      try {
+        String lineString = line.toString();
+        byte[] rowkey = DigestUtils.md5(lineString); //The row key is the MD5 hash of the line to generate a random key.
+        Put put = new Put(rowkey);
+        put.add(family, qualifier, Bytes.toBytes(lineString)); 
+        context.write(new ImmutableBytesWritable(rowkey), put);
+        context.getCounter(Counters.LINES).increment(1);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * Main entry point.
+   *
+   * @param args The command line parameters.
+   * @throws Exception When running the job fails.
+   * create 'testtable', 'data'
+   */
+  public static void main(String[] args) throws Exception {
+    Configuration conf = HBaseConfiguration.create();
+    conf.set("conf.debug", "true");
+    String table = "testtable";
+    //String input = "/test-data.txt";
+    String input = "hdfs://localhost:9000/test-data.txt";
+    String column = "data:json";
+    conf.set("conf.column", column);
+
+    Job job = new Job(conf, "Import from file " + input + " into table " + table); // co ImportFromFile-8-JobDef Define the job with the required classes.
+    job.setJarByClass(ImportFromFile.class);
+    job.setMapperClass(ImportMapper.class);
+    job.setOutputFormatClass(TableOutputFormat.class);
+    job.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE, table);
+    job.setOutputKeyClass(ImmutableBytesWritable.class);
+    job.setOutputValueClass(Writable.class);
+    job.setNumReduceTasks(0); //This is a map only job, therefore tell the framework to bypass the reduce step.
+    FileInputFormat.addInputPath(job, new Path(input));
+
+    System.exit(job.waitForCompletion(true) ? 0 : 1);
+  }
+}
